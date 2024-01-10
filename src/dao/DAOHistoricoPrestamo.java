@@ -54,9 +54,9 @@ public class DAOHistoricoPrestamo {
 			st.setString(6, like);
 			st.setString(7, like);
 			st.setString(8, like);
-			ResultSet rs = st.executeQuery(sql);
+			ResultSet rs = st.executeQuery();
 			while (rs.next()) {
-				prestamos.add(DAOPrestamo.mapPrestamo(rs));
+				prestamos.add(DAOPrestamo.mapPrestamo(rs, true));
 			}
 		} catch (SQLException e) {
 			throw new BibliotecaException(e);

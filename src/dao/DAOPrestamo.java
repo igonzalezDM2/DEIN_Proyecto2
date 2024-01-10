@@ -15,10 +15,13 @@ import model.Prestamo;
 public class DAOPrestamo {
 	
 	public static Prestamo mapPrestamo(ResultSet rs) throws SQLException {
+		return mapPrestamo(rs, false);
+	}
+	public static Prestamo mapPrestamo(ResultSet rs, boolean historico) throws SQLException {
 		return new Prestamo()
 				.setId(rs.getInt("id_prestamo"))
 				.setFecha(rs.getDate("fecha_prestamo"))
-				.setFechaDevolucion(rs.getDate("fecha_devolucion"))
+				.setFechaDevolucion(historico ? rs.getDate("fecha_devolucion") : null)
 				.setAlumno(new Alumno()
 						.setDni(rs.getString("dni_alumno"))
 						.setNombre(rs.getString("nombre_alumno"))
@@ -56,8 +59,8 @@ public class DAOPrestamo {
 				+ "Libro.baja as baja_libro, "
 				+ "fecha_prestamo "
 				+ "FROM Prestamo "
-				+ "INNER JOIN Alumno on Alumno.dni = Historico_prestamo.dni_alumno "
-				+ "INNER JOIN Libro on Libro.codigo = Historico_prestamo.codigo_libro "
+				+ "INNER JOIN Alumno on Alumno.dni = Prestamo.dni_alumno "
+				+ "INNER JOIN Libro on Libro.codigo = Prestamo.codigo_libro "
 				+ "WHERE dni_alumno LIKE ? "
 				+ "OR Alumno.nombre LIKE ? "
 				+ "OR Alumno.apellido1 LIKE ? "
@@ -77,7 +80,7 @@ public class DAOPrestamo {
 			st.setString(6, like);
 			st.setString(7, like);
 			st.setString(8, like);
-			ResultSet rs = st.executeQuery(sql);
+			ResultSet rs = st.executeQuery();
 			while (rs.next()) {
 				prestamos.add(mapPrestamo(rs));
 			}

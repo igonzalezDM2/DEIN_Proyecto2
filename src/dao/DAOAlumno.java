@@ -9,6 +9,7 @@ import java.util.List;
 
 import excepciones.BibliotecaException;
 import model.Alumno;
+import utils.StringUtils;
 
 public class DAOAlumno {
 	
@@ -47,4 +48,93 @@ public class DAOAlumno {
 		}
 		return alumnos;
 	}
+	
+	public static void anadirAlumno(Alumno alumno) throws BibliotecaException, SQLException {
+		if (alumno != null) {
+			
+			String sql = "INSERT INTO Alumno ("
+					+ "dni, nombre, apellido1, apellido2) "
+					+ "VALUES (?, ?, ?, ?)";
+			
+			Connection con = null;
+			try {
+				con = UtilConexion.getConexion();
+				con.setAutoCommit(false);
+				
+				try (PreparedStatement ps = con.prepareStatement(sql)) {
+					ps.setString(1, alumno.getDni());
+					ps.setString(2, alumno.getNombre());
+					ps.setString(3, alumno.getApellido1());
+					ps.setString(4, alumno.getApellido2());
+					
+					ps.executeUpdate();
+					
+				}
+				con.commit();
+			} catch (SQLException e) {
+				e.printStackTrace();
+				con.rollback();
+				throw new BibliotecaException(e);
+			} finally {
+				con.close();
+			}			
+		} else {			
+			throw new BibliotecaException("Los datos introducidos están incompletos");
+		}
+	}
+	
+	public static void modificarAlumno (Alumno alumno) throws BibliotecaException, SQLException {
+		if (alumno != null && !StringUtils.isBlank(alumno.getDni())) {
+			
+			String sql = "UPDATE Alumno SET "
+					+ "dni = ?, "
+					+ "nombre = ?, "
+					+ "apellido1 = ?, "
+					+ "apellido2 = ? "
+					+ "WHERE dni = ?";
+			
+			Connection con = null;
+			try {
+				con = UtilConexion.getConexion();
+				con.setAutoCommit(false);
+				
+				try (PreparedStatement ps = con.prepareStatement(sql)) {
+					ps.setString(1, alumno.getDni());
+					ps.setString(2, alumno.getNombre());
+					ps.setString(3, alumno.getApellido1());
+					ps.setString(4, alumno.getApellido2());
+					ps.setString(5, alumno.getDni());
+					
+					ps.executeUpdate();
+				}
+				con.commit();
+			} catch (SQLException e) {
+				e.printStackTrace();
+				con.rollback();
+				throw new BibliotecaException(e);
+			} finally {
+				con.close();
+			}			
+		} else {			
+			throw new BibliotecaException("Los datos introducidos están incompletos");
+		}
+	}
+	
+	public static boolean existe(Alumno alumno) throws BibliotecaException {
+		if (alumno != null && alumno.getDni() != null) {
+			String sql = "SELECT * FROM Alumno WHERE dni = ?";
+			try(Connection con = UtilConexion.getConexion()) {
+				PreparedStatement st = con.prepareStatement(sql);
+				st.setString(1, alumno.getDni());
+				ResultSet rs = st.executeQuery();
+				return rs.first();
+			} catch (SQLException e) {
+				throw new BibliotecaException(e);
+			}
+		}
+			
+		return false;
+	}
+	
+	
 }

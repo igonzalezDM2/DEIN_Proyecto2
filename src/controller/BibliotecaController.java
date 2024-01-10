@@ -1,5 +1,6 @@
 package controller;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
 import java.util.ResourceBundle;
@@ -13,7 +14,9 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TableColumn;
@@ -21,6 +24,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.FlowPane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import model.Alumno;
 import model.Libro;
 import model.Prestamo;
@@ -153,7 +159,7 @@ public class BibliotecaController implements Initializable {
     
     @FXML
     void anadirAlumno(ActionEvent event) {
-
+    	abrirEditorAlumno(null);
     }
     
     @FXML
@@ -379,5 +385,31 @@ public class BibliotecaController implements Initializable {
 		});
 		
 	}
+	
+    private void abrirEditorAlumno(Alumno alumno) {
+        FlowPane root;
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/EditarAlumno.fxml"));
+            root = loader.load();
+            EditarAlumnoController controlador = loader.getController();
+            
+            controlador
+            .setContexto(this)
+            .setAlumno(alumno);
+            
+            Stage stage = new Stage();
+            if (alumno != null) {                
+                stage.setTitle("EDITAR ALUMNO");
+            } else {
+            	stage.setTitle("AÑADIR ALUMNO");            	
+            }
+            stage.initModality(Modality.WINDOW_MODAL);
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.showAndWait();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 }

@@ -8,7 +8,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import excepciones.BibliotecaException;
+import model.Alumno;
+import model.Libro;
 import model.Prestamo;
+import utils.StringUtils;
 
 public class DAOHistoricoPrestamo {
 	
@@ -62,5 +65,46 @@ public class DAOHistoricoPrestamo {
 			throw new BibliotecaException(e);
 		}
 		return prestamos;
+	}
+	
+	public static void borrarPorLibro(Libro libro) throws SQLException, BibliotecaException {
+		if (libro != null && libro.getCodigo() > 0) {
+			String sql = "DELETE FROM Historico_prestamo WHERE codigo_libro = ?";
+			Connection con = null;
+			try {
+				con = UtilConexion.getConexion();
+				con.setAutoCommit(false);
+				PreparedStatement ps = con.prepareStatement(sql);
+				ps.setInt(1, libro.getCodigo());
+				ps.executeUpdate();
+				con.commit();
+			} catch (SQLException e) {
+				con.rollback();
+				throw new BibliotecaException(e);
+			} finally {
+				con.close();
+			}
+		}	
+	}
+	
+	public static void borrarPorAlumno(Alumno alumno) throws SQLException, BibliotecaException {
+		if (alumno != null && !StringUtils.isBlank(alumno.getDni())) {
+			String sql = "DELETE FROM Historico_prestamo WHERE dni_alumno = ?";
+			Connection con = null;
+			try {
+				con = UtilConexion.getConexion();
+				con.setAutoCommit(false);
+				PreparedStatement ps = con.prepareStatement(sql);
+				ps.setString(1, alumno.getDni());
+				ps.executeUpdate();
+				con.commit();
+			} catch (SQLException e) {
+				con.rollback();
+				throw new BibliotecaException(e);
+			} finally {
+				con.close();
+			}
+		}
+		
 	}
 }

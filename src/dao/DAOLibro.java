@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 
+import enums.EstadoLibro;
 import excepciones.BibliotecaException;
 import model.Libro;
 
@@ -18,7 +19,7 @@ public class DAOLibro {
 				.setTitulo(rs.getString("titulo"))
 				.setAutor(rs.getString("autor"))
 				.setEditorial(rs.getString("editorial"))
-				.setEstado(rs.getString("estado"))
+				.setEstado(EstadoLibro.getByValor(rs.getString("estado")))
 				.setBaja(rs.getBoolean("baja"))
 				;
 	}
@@ -50,4 +51,109 @@ public class DAOLibro {
 		}
 		return libros;
 	}
+	
+	public static void anadirLibro(Libro libro) throws BibliotecaException, SQLException {
+		if (libro != null) {
+			
+			String sql = "INSERT INTO Libro ("
+					+ "titulo, autor, editorial, estado, baja) "
+					+ "VALUES (?, ?, ?, ?, ?)";
+			
+			Connection con = null;
+			try {
+				con = UtilConexion.getConexion();
+				con.setAutoCommit(false);
+				
+				try (PreparedStatement ps = con.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+					ps.setString(1, libro.getTitulo());
+					ps.setString(2, libro.getAutor());
+					ps.setString(3, libro.getEditorial());
+					ps.setString(4, libro.getEstado() != null ? libro.getEstado().getValor() : null);
+					ps.setBoolean(5, libro.isBaja());
+					
+					ps.executeUpdate();
+					
+					ResultSet keys = ps.getGeneratedKeys();
+					if (keys.first()) {
+						libro.setCodigo(keys.getInt(1));
+					}
+				}
+				con.commit();
+			} catch (SQLException e) {
+				e.printStackTrace();
+				con.rollback();
+				throw new BibliotecaException(e);
+			} finally {
+				con.close();
+			}			
+		} else {			
+			throw new BibliotecaException("Los datos introducidos están incompletos");
+		}
+	}
+	
+	public static void modificarLibro (Libro libro) throws BibliotecaException, SQLException {
+		if (libro != null && libro.getCodigo() > 0) {
+			
+			String sql = "UPDATE Libro SET "
+					+ "titulo = ?, "
+					+ "autor = ?, "
+					+ "editorial = ?, "
+					+ "estado = ?, "
+					+ "baja = ? "
+					+ "WHERE codigo = ?";
+			
+			Connection con = null;
+			try {
+				con = UtilConexion.getConexion();
+				con.setAutoCommit(false);
+				
+				try (PreparedStatement ps = con.prepareStatement(sql)) {
+					ps.setString(1, libro.getTitulo());
+					ps.setString(2, libro.getAutor());
+					ps.setString(3, libro.getEditorial());
+					ps.setString(4, libro.getEstado() != null ? libro.getEstado().getValor() : null);
+					ps.setBoolean(5, libro.isBaja());
+					ps.setInt(6, libro.getCodigo());
+					
+					ps.executeUpdate();
+				}
+				con.commit();
+			} catch (SQLException e) {
+				e.printStackTrace();
+				con.rollback();
+				throw new BibliotecaException(e);
+			} finally {
+				con.close();
+			}			
+		} else {			
+			throw new BibliotecaException("Los datos introducidos están incompletos");
+		}
+	}
+	
+	public static void borrarLibro(Libro libro) throws SQLException, BibliotecaException {
+		if (libro != null && libro.getCodigo() > 0) {			
+			String sql = "DELETE FROM Libro WHERE codigo = ?";
+			Connection con = null;
+			try {
+				
+				//BORRAR PRIMERO LAS REFERENCIAS AL NO HABER ON DELETE CASCADE
+				DAOPrestamo.borrarPorLibro(libro);
+				DAOHistoricoPrestamo.borrarPorLibro(libro);
+				
+				con = UtilConexion.getConexion();
+				con.setAutoCommit(false);
+				PreparedStatement ps = con.prepareStatement(sql);
+				ps.setInt(1, libro.getCodigo());
+				ps.executeUpdate();
+				con.commit();
+			} catch (SQLException e) {
+				con.rollback();
+				throw new BibliotecaException(e);
+			} finally {
+				con.close();
+			}
+		}
+		
+	}
+	
 }

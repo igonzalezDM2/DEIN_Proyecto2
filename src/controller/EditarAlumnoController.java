@@ -50,18 +50,18 @@ public class EditarAlumnoController {
     	try {
     		String errores = validarAlumno();
         	if (StringUtils.isBlank(errores)) {
+        		Alumno nuevoAlumno = construirAlumno(); 
         		if (alumno == null) {
-        			alumno = construirAlumno();
         			
-        			if (DAOAlumno.existe(alumno)) {
+        			if (DAOAlumno.existe(nuevoAlumno)) {
         				Utilidades.lanzarError(new BibliotecaException("El alumno con ese DNI ya existe"));
         			} else {        				
-        				DAOAlumno.anadirAlumno(alumno);
+        				DAOAlumno.anadirAlumno(nuevoAlumno);
         				cancelar(event);
         			}
         			
         		} else {
-        			DAOAlumno.modificarAlumno(alumno);
+        			DAOAlumno.modificarAlumno(nuevoAlumno);
         			cancelar(event);
         		}
         			
@@ -102,6 +102,9 @@ public class EditarAlumnoController {
     		tfNombre.setText(alumno.getNombre());
     		tfApellido1.setText(alumno.getApellido1());
     		tfApellido2.setText(alumno.getApellido2());
+    		
+        	lblDni.setVisible(false);
+        	tfDni.setVisible(false);
     	}
     }
     

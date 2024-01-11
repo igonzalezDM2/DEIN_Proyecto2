@@ -7,10 +7,13 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 
+import enums.EstadoLibro;
 import excepciones.BibliotecaException;
 import model.Alumno;
 import model.Libro;
 import model.Prestamo;
+import utils.StringUtils;
+import utils.Utilidades;
 
 public class DAOPrestamo {
 	
@@ -32,7 +35,7 @@ public class DAOPrestamo {
 						.setTitulo(rs.getString("titulo_libro"))
 						.setAutor(rs.getString("autor_libro"))
 						.setEditorial(rs.getString("editorial_libro"))
-						.setEstado(rs.getString("estado_libro"))
+						.setEstado(EstadoLibro.getByValor(rs.getString("estado_libro")))
 						.setBaja(rs.getBoolean("baja_libro"))
 						)
 				
@@ -89,4 +92,140 @@ public class DAOPrestamo {
 		}
 		return prestamos;
 	}
+	
+	public static void anadirPrestamo(Prestamo prestamo) throws BibliotecaException, SQLException {
+		if (prestamo != null) {
+			
+			String sql = "INSERT INTO Prestamo ("
+					+ "dni_alumno, codigo_libro, fecha_prestamo) "
+					+ "VALUES (?, ?, ?)";
+			
+			Connection con = null;
+			try {
+				con = UtilConexion.getConexion();
+				con.setAutoCommit(false);
+				
+				try (PreparedStatement ps = con.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+					ps.setString(1, prestamo.getAlumno().getDni());
+					ps.setInt(2, prestamo.getLibro().getCodigo());
+					ps.setDate(3, Utilidades.sqlDate(prestamo.getFecha()));
+					
+					ps.executeUpdate();
+					
+					ResultSet keys = ps.getGeneratedKeys();
+					if (keys.first()) {
+						prestamo.setId(keys.getInt(1));
+					}
+				}
+				con.commit();
+			} catch (SQLException e) {
+				e.printStackTrace();
+				con.rollback();
+				throw new BibliotecaException(e);
+			} finally {
+				con.close();
+			}			
+		} else {			
+			throw new BibliotecaException("Los datos introducidos están incompletos");
+		}
+	}
+	
+	public static void modificarPrestamo (Prestamo prestamo) throws BibliotecaException, SQLException {
+		if (prestamo != null && prestamo.getId() > 0) {
+			
+			String sql = "UPDATE Prestamo SET "
+					+ "dni_alumno = ?, "
+					+ "codigo_libro = ?, "
+					+ "fecha_prestamo = ? "
+					+ "WHERE id_prestamo = ?";
+			
+			Connection con = null;
+			try {
+				con = UtilConexion.getConexion();
+				con.setAutoCommit(false);
+				
+				try (PreparedStatement ps = con.prepareStatement(sql)) {
+					ps.setString(1, prestamo.getAlumno().getDni());
+					ps.setInt(2, prestamo.getLibro().getCodigo());
+					ps.setDate(3, Utilidades.sqlDate(prestamo.getFecha()));
+					ps.setInt(4, prestamo.getId());
+					
+					ps.executeUpdate();
+				}
+				con.commit();
+			} catch (SQLException e) {
+				e.printStackTrace();
+				con.rollback();
+				throw new BibliotecaException(e);
+			} finally {
+				con.close();
+			}			
+		} else {			
+			throw new BibliotecaException("Los datos introducidos están incompletos");
+		}
+	}
+	
+	public static void borrarPrestamo (Prestamo prestamo) throws SQLException, BibliotecaException {
+		if (prestamo != null && prestamo.getId() > 0) {
+			String sql = "DELETE FROM Prestamo WHERE id_prestamo = ?";
+			Connection con = null;
+			try {
+				con = UtilConexion.getConexion();
+				con.setAutoCommit(false);
+				PreparedStatement ps = con.prepareStatement(sql);
+				ps.setInt(1, prestamo.getId());
+				ps.executeUpdate();
+				con.commit();
+			} catch (SQLException e) {
+				con.rollback();
+				throw new BibliotecaException(e);
+			} finally {
+				con.close();
+			}
+		}
+		
+	}
+	
+	public static void borrarPorLibro(Libro libro) throws SQLException, BibliotecaException {
+		if (libro != null && libro.getCodigo() > 0) {
+			String sql = "DELETE FROM Prestamo WHERE codigo_libro = ?";
+			Connection con = null;
+			try {
+				con = UtilConexion.getConexion();
+				con.setAutoCommit(false);
+				PreparedStatement ps = con.prepareStatement(sql);
+				ps.setInt(1, libro.getCodigo());
+				ps.executeUpdate();
+				con.commit();
+			} catch (SQLException e) {
+				con.rollback();
+				throw new BibliotecaException(e);
+			} finally {
+				con.close();
+			}
+		}
+		
+	}
+	
+	public static void borrarPorAlumno(Alumno alumno) throws SQLException, BibliotecaException {
+		if (alumno != null && !StringUtils.isBlank(alumno.getDni())) {
+			String sql = "DELETE FROM Prestamo WHERE dni_alumno = ?";
+			Connection con = null;
+			try {
+				con = UtilConexion.getConexion();
+				con.setAutoCommit(false);
+				PreparedStatement ps = con.prepareStatement(sql);
+				ps.setString(1, alumno.getDni());
+				ps.executeUpdate();
+				con.commit();
+			} catch (SQLException e) {
+				con.rollback();
+				throw new BibliotecaException(e);
+			} finally {
+				con.close();
+			}
+		}
+		
+	}
+	
 }

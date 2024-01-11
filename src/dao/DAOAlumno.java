@@ -136,5 +136,31 @@ public class DAOAlumno {
 		return false;
 	}
 	
+	public static void borrarAlumno(Alumno alumno) throws SQLException, BibliotecaException {
+		if (alumno != null && !StringUtils.isBlank(alumno.getDni())) {			
+			String sql = "DELETE FROM Alumno WHERE dni = ?";
+			Connection con = null;
+			try {
+				
+				//BORRAR PRIMERO LAS REFERENCIAS AL NO HABER ON DELETE CASCADE
+				DAOPrestamo.borrarPorAlumno(alumno);
+				DAOHistoricoPrestamo.borrarPorAlumno(alumno);
+				
+				con = UtilConexion.getConexion();
+				con.setAutoCommit(false);
+				PreparedStatement ps = con.prepareStatement(sql);
+				ps.setString(1, alumno.getDni());
+				ps.executeUpdate();
+				con.commit();
+			} catch (SQLException e) {
+				con.rollback();
+				throw new BibliotecaException(e);
+			} finally {
+				con.close();
+			}
+		}
+		
+	}
+	
 	
 }

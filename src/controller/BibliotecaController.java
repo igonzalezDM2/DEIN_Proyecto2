@@ -2,6 +2,7 @@ package controller;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.ResourceBundle;
 
@@ -18,6 +19,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -31,6 +35,7 @@ import model.Alumno;
 import model.Libro;
 import model.Prestamo;
 import utils.StringUtils;
+import utils.Utilidades;
 
 public class BibliotecaController implements Initializable {
 
@@ -45,6 +50,9 @@ public class BibliotecaController implements Initializable {
 
     @FXML
     private Button btnAnadirPrestamo;
+    
+    @FXML
+    private CheckBox cbBusquedaBajaLibros;
 
     @FXML
     private Tab tabAlumnos;
@@ -164,7 +172,7 @@ public class BibliotecaController implements Initializable {
     
     @FXML
     void anadirLibro(ActionEvent event) {
-
+    	abrirEditorLibro(null);
     }
     
     @FXML
@@ -193,7 +201,9 @@ public class BibliotecaController implements Initializable {
     	try {
     		String busqueda = StringUtils.trimToEmpty(tfBuscarLibros.getText());
     		tvLibros.getItems().clear();
-    		tvLibros.getItems().addAll(DAOLibro.getLibros(busqueda));
+    		tvLibros.getItems().addAll(
+    			DAOLibro.getLibros(busqueda).stream().filter(l -> l.isBaja() == cbBusquedaBajaLibros.isSelected()).toList()
+    		);
 		} catch (BibliotecaException e) {
 			e.printStackTrace();
 		}
@@ -243,6 +253,21 @@ public class BibliotecaController implements Initializable {
 		tfBuscarAlumnos.setOnKeyTyped(event -> {
 			buscarAlumno(null);
 		});
+		
+		MenuItem miBorrar = new MenuItem("Borrar");
+		miBorrar.setOnAction(evento -> {
+			Utilidades.confirmarSiNo("¿Desea borrar este alumno y todos sus préstamos?", () -> {
+				try {
+					DAOAlumno.borrarAlumno(tvAlumnos.getSelectionModel().getSelectedItem());
+					buscarAlumno(evento);
+				} catch (BibliotecaException |SQLException e) {
+					Utilidades.lanzarError(e);
+				}
+			});
+		});
+		
+		ContextMenu cm = new ContextMenu(miBorrar);
+		tvAlumnos.setContextMenu(cm);
 	}
 	
 	private void inicializarLibros() throws BibliotecaException {
@@ -257,6 +282,30 @@ public class BibliotecaController implements Initializable {
 		tfBuscarLibros.setOnKeyTyped(evento -> {
 			buscarLibro(null);
 		});
+
+		cbBusquedaBajaLibros.setOnAction(evento -> {
+			buscarLibro(null);
+		});
+		
+		MenuItem miBorrar = new MenuItem("Borrar");
+		miBorrar.setOnAction(evento -> {
+			Utilidades.confirmarSiNo("¿Desea borrar este libro y todos sus préstamos?", () -> {
+				try {
+					DAOLibro.borrarLibro(tvLibros.getSelectionModel().getSelectedItem());
+					buscarLibro(evento);
+				} catch (BibliotecaException |SQLException e) {
+					Utilidades.lanzarError(e);
+				}
+			});
+		});
+		
+		MenuItem miModificar = new MenuItem("Modificar");
+		miModificar.setOnAction(evento -> {
+			abrirEditorLibro(tvLibros.getSelectionModel().getSelectedItem());
+		});
+		
+		ContextMenu cm = new ContextMenu(miBorrar, miModificar);
+		tvLibros.setContextMenu(cm);
 	}
 	
 	private void inicializarPrestamos() throws BibliotecaException {
@@ -410,6 +459,32 @@ public class BibliotecaController implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    
+    private void abrirEditorLibro(Libro libro) {
+    	FlowPane root;
+    	try {
+    		FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/EditarLibro.fxml"));
+    		root = loader.load();
+    		EditarLibroController controlador = loader.getController();
+    		
+    		controlador
+    		.setContexto(this)
+    		.setLibro(libro);
+    		
+    		Stage stage = new Stage();
+    		if (libro != null) {                
+    			stage.setTitle("EDITAR LIBRO");
+    		} else {
+    			stage.setTitle("AÑADIR LIBRO");
+    		}
+    		stage.initModality(Modality.WINDOW_MODAL);
+    		Scene scene = new Scene(root);
+    		stage.setScene(scene);
+    		stage.showAndWait();
+    	} catch (IOException e) {
+    		e.printStackTrace();
+    	}
     }
 
 }

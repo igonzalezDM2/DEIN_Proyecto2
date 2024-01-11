@@ -2,13 +2,16 @@ package model;
 
 import java.io.Serializable;
 
+import enums.EstadoLibro;
+
 public class Libro implements Serializable {
 	
 	private static final long serialVersionUID = -5576585320895867104L;
 	
 	private int codigo;
-	private String titulo, autor, editorial, estado;
+	private String titulo, autor, editorial;
 	private boolean baja;
+	private EstadoLibro estado;
 	
 	public int getCodigo() {
 		return codigo;
@@ -38,10 +41,10 @@ public class Libro implements Serializable {
 		this.editorial = editorial;
 		return this;
 	}
-	public String getEstado() {
+	public EstadoLibro getEstado() {
 		return estado;
 	}
-	public Libro setEstado(String estado) {
+	public Libro setEstado(EstadoLibro estado) {
 		this.estado = estado;
 		return this;
 	}

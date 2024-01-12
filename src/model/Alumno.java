@@ -1,6 +1,7 @@
 package model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class Alumno implements Serializable {
 		
@@ -42,6 +43,28 @@ public class Alumno implements Serializable {
 	public Alumno setApellido2(String apellido2) {
 		this.apellido2 = apellido2;
 		return this;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(dni);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Alumno other = (Alumno) obj;
+		return Objects.equals(dni, other.dni);
+	}
+
+	@Override
+	public String toString() {
+		return String.format("%s %s, %s", apellido1, apellido2, nombre);
 	}
 	
 	

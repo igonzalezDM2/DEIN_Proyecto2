@@ -2,6 +2,7 @@ package model;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 public class Prestamo implements Serializable {
 		
@@ -46,5 +47,22 @@ public class Prestamo implements Serializable {
 		this.fechaDevolucion = fechaDevolucion;
 		return this;
 	}
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Prestamo other = (Prestamo) obj;
+		return id == other.id;
+	}
+	
+	
 	
 }

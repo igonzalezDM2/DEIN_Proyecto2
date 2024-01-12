@@ -5,7 +5,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.Optional;
@@ -120,8 +122,16 @@ public class Utilidades {
 	 * @return fecha LocalDate convertida
 	 */
 	public static LocalDate date2Local(Date date) {
-		if (date != null) {			
-			return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+		if (date != null) {
+			return Instant
+				    // get the millis value to build the Instant
+				    .ofEpochMilli(date.getTime())
+				    // convert to JVM default timezone
+				    .atZone(ZoneId.systemDefault())
+				    // set time to midnight
+				    .with(LocalTime.MIDNIGHT)
+				    // convert to LocalDate
+				    .toLocalDate();
 		}
 		return null;
 	}

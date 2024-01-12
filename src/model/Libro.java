@@ -1,6 +1,7 @@
 package model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import enums.EstadoLibro;
 
@@ -55,5 +56,26 @@ public class Libro implements Serializable {
 		this.baja = baja;
 		return this;
 	}
+	@Override
+	public int hashCode() {
+		return Objects.hash(codigo);
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Libro other = (Libro) obj;
+		return codigo == other.codigo;
+	}
+	@Override
+	public String toString() {
+		return titulo;
+	}
+	
+	
 	
 }

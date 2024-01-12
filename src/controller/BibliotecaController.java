@@ -177,12 +177,12 @@ public class BibliotecaController implements Initializable {
     
     @FXML
     void anadirPrestamo(ActionEvent event) {
-
+    	abrirEditorPrestamo(null, false);
     }
     
     @FXML
     void anadirHistoricoPrestamo(ActionEvent event) {
-
+    	abrirEditorPrestamo(null, true);
     }
 
     @FXML
@@ -266,7 +266,12 @@ public class BibliotecaController implements Initializable {
 			});
 		});
 		
-		ContextMenu cm = new ContextMenu(miBorrar);
+		MenuItem miModificar = new MenuItem("Modificar");
+		miModificar.setOnAction(evento -> {
+			abrirEditorAlumno(tvAlumnos.getSelectionModel().getSelectedItem());
+		});
+		
+		ContextMenu cm = new ContextMenu(miBorrar, miModificar);
 		tvAlumnos.setContextMenu(cm);
 	}
 	
@@ -369,6 +374,25 @@ public class BibliotecaController implements Initializable {
 			buscarPrestamo(null);
 		});
 		
+		MenuItem miBorrar = new MenuItem("Borrar");
+		miBorrar.setOnAction(evento -> {
+			Utilidades.confirmarSiNo("¿Desea borrar este préstamo?", () -> {
+				try {
+					DAOPrestamo.borrarPrestamo(tvPrestamos.getSelectionModel().getSelectedItem());
+					buscarPrestamo(evento);
+				} catch (BibliotecaException |SQLException e) {
+					Utilidades.lanzarError(e);
+				}
+			});
+		});
+		
+		MenuItem miModificar = new MenuItem("Modificar");
+		miModificar.setOnAction(evento -> {
+			abrirEditorPrestamo(tvPrestamos.getSelectionModel().getSelectedItem(), false);
+		});
+		
+		ContextMenu cm = new ContextMenu(miBorrar, miModificar);
+		tvPrestamos.setContextMenu(cm);
 	}
 	
 	private void inicializarHistoricoPrestamos() throws BibliotecaException {
@@ -433,6 +457,26 @@ public class BibliotecaController implements Initializable {
 			buscarHistoricoPrestamo(null);
 		});
 		
+		MenuItem miBorrar = new MenuItem("Borrar");
+		miBorrar.setOnAction(evento -> {
+			Utilidades.confirmarSiNo("¿Desea borrar este préstamo histórico?", () -> {
+				try {
+					DAOHistoricoPrestamo.borrarHistoricoPrestamo(tvHistoricoPrestamos.getSelectionModel().getSelectedItem());
+					buscarHistoricoPrestamo(evento);
+				} catch (BibliotecaException |SQLException e) {
+					Utilidades.lanzarError(e);
+				}
+			});
+		});
+		
+		MenuItem miModificar = new MenuItem("Modificar");
+		miModificar.setOnAction(evento -> {
+			abrirEditorPrestamo(tvHistoricoPrestamos.getSelectionModel().getSelectedItem(), true);
+		});
+		
+		ContextMenu cm = new ContextMenu(miBorrar, miModificar);
+		tvHistoricoPrestamos.setContextMenu(cm);
+		
 	}
 	
     private void abrirEditorAlumno(Alumno alumno) {
@@ -477,6 +521,33 @@ public class BibliotecaController implements Initializable {
     			stage.setTitle("EDITAR LIBRO");
     		} else {
     			stage.setTitle("AÑADIR LIBRO");
+    		}
+    		stage.initModality(Modality.WINDOW_MODAL);
+    		Scene scene = new Scene(root);
+    		stage.setScene(scene);
+    		stage.showAndWait();
+    	} catch (IOException e) {
+    		e.printStackTrace();
+    	}
+    }
+    
+    private void abrirEditorPrestamo(Prestamo prestamo, boolean historico) {
+    	FlowPane root;
+    	try {
+    		FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/EditarPrestamo.fxml"));
+    		root = loader.load();
+    		EditarPrestamoController controlador = loader.getController();
+    		
+    		controlador
+    		.setContexto(this)
+    		.setPrestamo(prestamo)
+    		.setHistorico(historico);
+    		
+    		Stage stage = new Stage();
+    		if (prestamo != null) {                
+    			stage.setTitle("EDITAR " + (historico ? "HISTÓRICO DE PRÉSTAMOS" : "PRÉSTAMO"));
+    		} else {
+    			stage.setTitle("AÑADIR " + (historico ? "HISTÓRICO DE PRÉSTAMOS" : "PRÉSTAMO"));
     		}
     		stage.initModality(Modality.WINDOW_MODAL);
     		Scene scene = new Scene(root);

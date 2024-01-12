@@ -52,6 +52,33 @@ public class DAOLibro {
 		return libros;
 	}
 	
+	public static List<Libro> getLibrosNoPrestados(String busqueda) throws BibliotecaException {
+		String like = "%" + busqueda + "%";
+		List<Libro> libros= new LinkedList<>();
+		String sql = "SELECT Libro.* FROM Libro "
+				+ "LEFT JOIN Prestamo ON Prestamo.codigo_libro = Libro.codigo "
+				+ "WHERE Prestamo.id_prestamo IS NULL "
+				+ "AND (titulo LIKE ? "
+				+ "OR autor LIKE ? "
+				+ "OR editorial LIKE ? "
+				+ "OR CAST(codigo as CHAR) LIKE ?) "
+				+ "GROUP BY Libro.codigo";
+		try(Connection con = UtilConexion.getConexion()) {
+			PreparedStatement st = con.prepareStatement(sql);
+			st.setString(1, like);
+			st.setString(2, like);
+			st.setString(3, like);
+			st.setString(4, like);
+			ResultSet rs = st.executeQuery();
+			while (rs.next()) {
+				libros.add(mapLibro(rs));
+			}
+		} catch (SQLException e) {
+			throw new BibliotecaException(e);
+		}
+		return libros;
+	}
+	
 	public static void anadirLibro(Libro libro) throws BibliotecaException, SQLException {
 		if (libro != null) {
 			

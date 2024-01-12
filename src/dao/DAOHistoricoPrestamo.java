@@ -12,6 +12,7 @@ import model.Alumno;
 import model.Libro;
 import model.Prestamo;
 import utils.StringUtils;
+import utils.Utilidades;
 
 public class DAOHistoricoPrestamo {
 	
@@ -65,6 +66,102 @@ public class DAOHistoricoPrestamo {
 			throw new BibliotecaException(e);
 		}
 		return prestamos;
+	}
+	
+	public static void anadirHistoricoPrestamo(Prestamo prestamo) throws BibliotecaException, SQLException {
+		if (prestamo != null) {
+			
+			String sql = "INSERT INTO Historico_prestamo ("
+					+ "dni_alumno, codigo_libro, fecha_prestamo, fecha_devolucion) "
+					+ "VALUES (?, ?, ?, ?)";
+			
+			Connection con = null;
+			try {
+				con = UtilConexion.getConexion();
+				con.setAutoCommit(false);
+				
+				try (PreparedStatement ps = con.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+					ps.setString(1, prestamo.getAlumno().getDni());
+					ps.setInt(2, prestamo.getLibro().getCodigo());
+					ps.setDate(3, Utilidades.sqlDate(prestamo.getFecha()));
+					ps.setDate(4, Utilidades.sqlDate(prestamo.getFechaDevolucion()));
+					
+					ps.executeUpdate();
+					
+					ResultSet keys = ps.getGeneratedKeys();
+					if (keys.first()) {
+						prestamo.setId(keys.getInt(1));
+					}
+				}
+				con.commit();
+			} catch (SQLException e) {
+				e.printStackTrace();
+				con.rollback();
+				throw new BibliotecaException(e);
+			} finally {
+				con.close();
+			}			
+		} else {			
+			throw new BibliotecaException("Los datos introducidos están incompletos");
+		}
+	}
+	
+	public static void modificarHistoricoPrestamo (Prestamo prestamo) throws BibliotecaException, SQLException {
+		if (prestamo != null && prestamo.getId() > 0) {
+			
+			String sql = "UPDATE Historico_prestamo SET "
+					+ "dni_alumno = ?, "
+					+ "codigo_libro = ?, "
+					+ "fecha_prestamo = ?, "
+					+ "fecha_devolucion = ? "
+					+ "WHERE id_prestamo = ?";
+			
+			Connection con = null;
+			try {
+				con = UtilConexion.getConexion();
+				con.setAutoCommit(false);
+				
+				try (PreparedStatement ps = con.prepareStatement(sql)) {
+					ps.setString(1, prestamo.getAlumno().getDni());
+					ps.setInt(2, prestamo.getLibro().getCodigo());
+					ps.setDate(3, Utilidades.sqlDate(prestamo.getFecha()));
+					ps.setDate(4, Utilidades.sqlDate(prestamo.getFechaDevolucion()));
+					ps.setInt(5, prestamo.getId());
+					
+					ps.executeUpdate();
+				}
+				con.commit();
+			} catch (SQLException e) {
+				e.printStackTrace();
+				con.rollback();
+				throw new BibliotecaException(e);
+			} finally {
+				con.close();
+			}			
+		} else {			
+			throw new BibliotecaException("Los datos introducidos están incompletos");
+		}
+	}
+	
+	public static void borrarHistoricoPrestamo (Prestamo prestamo) throws SQLException, BibliotecaException {
+		if (prestamo != null && prestamo.getId() > 0) {
+			String sql = "DELETE FROM Historico_prestamo WHERE id_prestamo = ?";
+			Connection con = null;
+			try {
+				con = UtilConexion.getConexion();
+				con.setAutoCommit(false);
+				PreparedStatement ps = con.prepareStatement(sql);
+				ps.setInt(1, prestamo.getId());
+				ps.executeUpdate();
+				con.commit();
+			} catch (SQLException e) {
+				con.rollback();
+				throw new BibliotecaException(e);
+			} finally {
+				con.close();
+			}
+		}
+		
 	}
 	
 	public static void borrarPorLibro(Libro libro) throws SQLException, BibliotecaException {

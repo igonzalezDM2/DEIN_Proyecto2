@@ -376,19 +376,7 @@ public class BibliotecaController implements Initializable {
 
 		MenuItem miDevolver = new MenuItem("Devolver");
 		miDevolver.setOnAction(evento -> {
-			Utilidades.confirmarSiNo("¿Desea devolver este préstamo con fecha de hoy?", () -> {
-				try {
-					Prestamo prestamo = tvPrestamos.getSelectionModel().getSelectedItem();
-					DAOPrestamo.borrarPrestamo(tvPrestamos.getSelectionModel().getSelectedItem());
-					prestamo.setFechaDevolucion(new Date());
-					DAOHistoricoPrestamo.anadirHistoricoPrestamo(prestamo);
-					
-					buscarPrestamo(evento);
-					buscarHistoricoPrestamo(evento);
-				} catch (BibliotecaException |SQLException e) {
-					Utilidades.lanzarError(e);
-				}
-			});
+			abrirDevolverPrestamo(tvPrestamos.getSelectionModel().getSelectedItem());
 		});
 		
 		MenuItem miBorrar = new MenuItem("Borrar");
@@ -572,6 +560,30 @@ public class BibliotecaController implements Initializable {
     		stage.showAndWait();
     	} catch (IOException e) {
     		e.printStackTrace();
+    	}
+    }
+    
+    private void abrirDevolverPrestamo(Prestamo prestamo) {
+    	if (prestamo != null) {    		
+    		FlowPane root;
+    		try {
+    			FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/DevolverPrestamo.fxml"));
+    			root = loader.load();
+    			DevolverPrestamoController controlador = loader.getController();
+    			
+    			controlador
+    			.setContexto(this)
+    			.setPrestamo(prestamo);
+    			
+    			Stage stage = new Stage();
+				stage.setTitle("DEVOLVER PRÉSTAMO");
+    			stage.initModality(Modality.WINDOW_MODAL);
+    			Scene scene = new Scene(root);
+    			stage.setScene(scene);
+    			stage.showAndWait();
+    		} catch (IOException e) {
+    			e.printStackTrace();
+    		}
     	}
     }
 

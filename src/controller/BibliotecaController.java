@@ -373,6 +373,23 @@ public class BibliotecaController implements Initializable {
 		tfBuscarPrestamos.setOnKeyTyped(evento -> {
 			buscarPrestamo(null);
 		});
+
+		MenuItem miDevolver = new MenuItem("Devolver");
+		miDevolver.setOnAction(evento -> {
+			Utilidades.confirmarSiNo("¿Desea devolver este préstamo con fecha de hoy?", () -> {
+				try {
+					Prestamo prestamo = tvPrestamos.getSelectionModel().getSelectedItem();
+					DAOPrestamo.borrarPrestamo(tvPrestamos.getSelectionModel().getSelectedItem());
+					prestamo.setFechaDevolucion(new Date());
+					DAOHistoricoPrestamo.anadirHistoricoPrestamo(prestamo);
+					
+					buscarPrestamo(evento);
+					buscarHistoricoPrestamo(evento);
+				} catch (BibliotecaException |SQLException e) {
+					Utilidades.lanzarError(e);
+				}
+			});
+		});
 		
 		MenuItem miBorrar = new MenuItem("Borrar");
 		miBorrar.setOnAction(evento -> {
@@ -391,7 +408,7 @@ public class BibliotecaController implements Initializable {
 			abrirEditorPrestamo(tvPrestamos.getSelectionModel().getSelectedItem(), false);
 		});
 		
-		ContextMenu cm = new ContextMenu(miBorrar, miModificar);
+		ContextMenu cm = new ContextMenu(miDevolver, miBorrar, miModificar);
 		tvPrestamos.setContextMenu(cm);
 	}
 	

@@ -130,7 +130,7 @@
                                     <Insets right="10.0" />
                                  </GridPane.margin>
                               </Label>
-                              <Label text="Informe 3:" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
+                              <Label text="Informe de alumnos con cálculos:" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
                                  <GridPane.margin>
                                     <Insets right="10.0" />
                                  </GridPane.margin>

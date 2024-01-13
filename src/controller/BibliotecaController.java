@@ -253,6 +253,7 @@ public class BibliotecaController implements Initializable {
 
     @FXML
     void generarInforme3(ActionEvent event) {
+    	Creador.crearInforme("/informes/informe4.jasper", null);
     }
 
 	@Override

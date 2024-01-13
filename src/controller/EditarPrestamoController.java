@@ -2,6 +2,8 @@ package controller;
 
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import dao.DAOAlumno;
@@ -9,6 +11,7 @@ import dao.DAOHistoricoPrestamo;
 import dao.DAOLibro;
 import dao.DAOPrestamo;
 import excepciones.BibliotecaException;
+import informes.Creador;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -57,11 +60,12 @@ public class EditarPrestamoController implements Initializable {
     @FXML
     void confirmar(ActionEvent event) {
     	try {
+    		Prestamo nuevoPrestamo = construirPrestamo();
     		if (historico) {
         		if (prestamo != null) {
-        			DAOHistoricoPrestamo.modificarHistoricoPrestamo(construirPrestamo());
+        			DAOHistoricoPrestamo.modificarHistoricoPrestamo(nuevoPrestamo);
         		} else {
-        			DAOHistoricoPrestamo.anadirHistoricoPrestamo(construirPrestamo());
+        			DAOHistoricoPrestamo.anadirHistoricoPrestamo(nuevoPrestamo);
         		}
         		
         		if (contexto != null) {
@@ -69,9 +73,12 @@ public class EditarPrestamoController implements Initializable {
         		}
         	} else {
         		if (prestamo != null) {
-        			DAOPrestamo.modificarPrestamo(construirPrestamo());
+        			DAOPrestamo.modificarPrestamo(nuevoPrestamo);
         		} else {
-        			DAOPrestamo.anadirPrestamo(construirPrestamo());        			
+        			DAOPrestamo.anadirPrestamo(nuevoPrestamo);
+        			Map<String, Object> parameters = new HashMap<String, Object>();
+        			parameters.put("ID_PRESTAMO", nuevoPrestamo.getId());
+        			Creador.crearInforme("/informes/informe1.jasper", parameters);
         		}
         		
         		if (contexto != null) {

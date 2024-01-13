@@ -26,7 +26,7 @@ public class Creador {
 	        
 			try {
 				JasperReport report = (JasperReport) JRLoader.loadObject(jasper);
-		        JasperPrint jprint = JasperFillManager.fillReport(report, parameters, con);
+		        JasperPrint jprint = JasperFillManager.fillReport(report, parameters != null ? parameters : new HashMap<String, Object>(), con);
 		        JasperViewer viewer = new JasperViewer(jprint, false);
 		        viewer.setVisible(true);
 			} catch (Exception e) {

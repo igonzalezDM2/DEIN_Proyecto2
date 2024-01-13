@@ -11,6 +11,7 @@ import dao.DAOHistoricoPrestamo;
 import dao.DAOLibro;
 import dao.DAOPrestamo;
 import excepciones.BibliotecaException;
+import informes.Creador;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
@@ -50,6 +51,15 @@ public class BibliotecaController implements Initializable {
 
     @FXML
     private Button btnAnadirPrestamo;
+    
+    @FXML
+    private Button btnInforme1;
+
+    @FXML
+    private Button btnInforme2;
+
+    @FXML
+    private Button btnInforme3;
     
     @FXML
     private CheckBox cbBusquedaBajaLibros;
@@ -229,6 +239,21 @@ public class BibliotecaController implements Initializable {
 		} catch (BibliotecaException e) {
 			e.printStackTrace();
 		}
+    }
+    
+    @FXML
+    void generarInforme1(ActionEvent event) {
+    	Creador.crearInforme("/informes/informe2.jasper", null);
+    }
+
+    @FXML
+    void generarInforme2(ActionEvent event) {
+
+    }
+
+    @FXML
+    void generarInforme3(ActionEvent event) {
+
     }
 
 	@Override

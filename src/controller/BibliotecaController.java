@@ -5,6 +5,7 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.ResourceBundle;
+import java.util.concurrent.atomic.AtomicLong;
 
 import dao.DAOAlumno;
 import dao.DAOHistoricoPrestamo;
@@ -22,6 +23,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TableColumn;
@@ -63,6 +65,13 @@ public class BibliotecaController implements Initializable {
     
     @FXML
     private CheckBox cbBusquedaBajaLibros;
+    
+
+    @FXML
+    private DatePicker dpHistoricoDesde;
+
+    @FXML
+    private DatePicker dpHistoricoHasta;
 
     @FXML
     private Tab tabAlumnos;
@@ -232,10 +241,38 @@ public class BibliotecaController implements Initializable {
     
     @FXML
     void buscarHistoricoPrestamo(ActionEvent event) {
+    	AtomicLong tiempoDesde = new AtomicLong();
+    	AtomicLong tiempoHasta = new AtomicLong();
+    	Date fechaDesde = null;
+    	Date fechaHasta = null;
+    	
     	try {
+    		fechaDesde = Utilidades.local2Date(dpHistoricoDesde.getValue());
+    		if (fechaDesde != null) {
+    			tiempoDesde.set(fechaDesde.getTime());
+    		}
+		} catch (Exception e) {/*QUEDA NULL*/}
+
+    	try {    			
+    		fechaHasta = Utilidades.local2Date(dpHistoricoHasta.getValue());
+    		if (fechaHasta != null) {
+    			tiempoHasta.set(fechaHasta.getTime());
+    		}
+    	} catch (Exception e) {/*QUEDA NULL*/}
+    	
+    	try {
+    		
+    		
     		String busqueda = StringUtils.trimToEmpty(tfBuscarHistoricoPrestamos.getText());
     		tvHistoricoPrestamos.getItems().clear();
-    		tvHistoricoPrestamos.getItems().addAll(DAOHistoricoPrestamo.getHistoricoPrestamos(busqueda));
+    		tvHistoricoPrestamos.getItems().addAll(DAOHistoricoPrestamo
+    				.getHistoricoPrestamos(busqueda)
+    				.stream()
+    				.filter(p -> comprobarPorFecha(p.getFecha(),
+    						tiempoDesde.get() > 0 ? new Date(tiempoDesde.get()) : null,
+    						tiempoHasta.get() > 0 ? new Date(tiempoHasta.get()) : null))
+    				.toList()
+    		);
 		} catch (BibliotecaException e) {
 			e.printStackTrace();
 		}
@@ -610,6 +647,18 @@ public class BibliotecaController implements Initializable {
     			e.printStackTrace();
     		}
     	}
+    }
+    
+    private static boolean comprobarPorFecha(Date fechaPrestamo, Date fechaDesde, Date fechaHasta) {
+    	if (fechaPrestamo != null) {
+    		
+    		if (fechaDesde != null && fechaPrestamo.before(fechaDesde)) {
+    			return false;
+    		} else if (fechaHasta != null && fechaPrestamo.after(fechaHasta)) {
+    			return false;
+    		}
+    	}
+    	return true;
     }
 
 }

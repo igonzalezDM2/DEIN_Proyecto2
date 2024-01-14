@@ -14,11 +14,26 @@ import model.Prestamo;
 import utils.StringUtils;
 import utils.Utilidades;
 
+/**
+ * Clase que representa el acceso a datos del historial de préstamos.
+ */
 public class DAOHistoricoPrestamo {
 	
+	/**
+	 * Obtiene el historial de préstamos.
+	 * @return Lista de préstamos
+	 * @throws BibliotecaException si ocurre un error al acceder a la base de datos
+	 */
 	public static List<Prestamo> getHistoricoPrestamos() throws BibliotecaException {
 		return getHistoricoPrestamos("");
 	}
+
+	/**
+	 * Obtiene el historial de préstamos que coinciden con la búsqueda especificada.
+	 * @param busqueda Término de búsqueda
+	 * @return Lista de préstamos que coinciden con la búsqueda
+	 * @throws BibliotecaException si ocurre un error al acceder a la base de datos
+	 */
 	public static List<Prestamo> getHistoricoPrestamos(String busqueda) throws BibliotecaException {
 		String like = "%" + busqueda + "%";
 		List<Prestamo> prestamos = new LinkedList<>();
@@ -68,6 +83,12 @@ public class DAOHistoricoPrestamo {
 		return prestamos;
 	}
 	
+	/**
+	 * Añade un préstamo al historial.
+	 * @param prestamo El préstamo a añadir
+	 * @throws BibliotecaException si ocurre un error al acceder a la base de datos
+	 * @throws SQLException si ocurre un error al ejecutar la consulta SQL
+	 */
 	public static void anadirHistoricoPrestamo(Prestamo prestamo) throws BibliotecaException, SQLException {
 		if (prestamo != null) {
 			
@@ -106,6 +127,12 @@ public class DAOHistoricoPrestamo {
 		}
 	}
 	
+	/**
+	 * Modifica un préstamo en el historial.
+	 * @param prestamo El préstamo a modificar
+	 * @throws BibliotecaException si ocurre un error al acceder a la base de datos
+	 * @throws SQLException si ocurre un error al ejecutar la consulta SQL
+	 */
 	public static void modificarHistoricoPrestamo (Prestamo prestamo) throws BibliotecaException, SQLException {
 		if (prestamo != null && prestamo.getId() > 0) {
 			
@@ -143,6 +170,12 @@ public class DAOHistoricoPrestamo {
 		}
 	}
 	
+	/**
+	 * Borra un préstamo del historial.
+	 * @param prestamo El préstamo a borrar
+	 * @throws SQLException si ocurre un error al ejecutar la consulta SQL
+	 * @throws BibliotecaException si ocurre un error al acceder a la base de datos
+	 */
 	public static void borrarHistoricoPrestamo (Prestamo prestamo) throws SQLException, BibliotecaException {
 		if (prestamo != null && prestamo.getId() > 0) {
 			String sql = "DELETE FROM Historico_prestamo WHERE id_prestamo = ?";
@@ -164,6 +197,12 @@ public class DAOHistoricoPrestamo {
 		
 	}
 	
+	/**
+	 * Borra todos los préstamos asociados a un libro del historial.
+	 * @param libro El libro del cual borrar los préstamos
+	 * @throws SQLException si ocurre un error al ejecutar la consulta SQL
+	 * @throws BibliotecaException si ocurre un error al acceder a la base de datos
+	 */
 	public static void borrarPorLibro(Libro libro) throws SQLException, BibliotecaException {
 		if (libro != null && libro.getCodigo() > 0) {
 			String sql = "DELETE FROM Historico_prestamo WHERE codigo_libro = ?";
@@ -184,6 +223,12 @@ public class DAOHistoricoPrestamo {
 		}	
 	}
 	
+	/**
+	 * Borra todos los préstamos asociados a un alumno del historial.
+	 * @param alumno El alumno del cual borrar los préstamos
+	 * @throws SQLException si ocurre un error al ejecutar la consulta SQL
+	 * @throws BibliotecaException si ocurre un error al acceder a la base de datos
+	 */
 	public static void borrarPorAlumno(Alumno alumno) throws SQLException, BibliotecaException {
 		if (alumno != null && !StringUtils.isBlank(alumno.getDni())) {
 			String sql = "DELETE FROM Historico_prestamo WHERE dni_alumno = ?";

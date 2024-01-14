@@ -11,8 +11,17 @@ import excepciones.BibliotecaException;
 import model.Alumno;
 import utils.StringUtils;
 
+/**
+ * Clase DAOAlumno para interactuar con la base de datos.
+ */
 public class DAOAlumno {
 	
+	/**
+	 * Mapea un ResultSet a un objeto Alumno.
+	 * @param rs ResultSet a mapear.
+	 * @return Alumno mapeado.
+	 * @throws SQLException si ocurre un error durante el mapeo.
+	 */
 	public static Alumno mapAlumno(ResultSet rs) throws SQLException {
 		return new Alumno()
 				.setDni(rs.getString("dni"))
@@ -21,10 +30,21 @@ public class DAOAlumno {
 				.setApellido2(rs.getString("apellido2"));
 	}
 	
+	/**
+	 * Obtiene una lista de todos los alumnos.
+	 * @return Lista de alumnos.
+	 * @throws BibliotecaException si ocurre un error durante la consulta.
+	 */
 	public static List<Alumno> getAlumnos() throws BibliotecaException {
 		return getAlumnos("");
 	}
 	
+	/**
+	 * Obtiene una lista de alumnos que coinciden con la búsqueda.
+	 * @param busqueda String de búsqueda.
+	 * @return Lista de alumnos que coinciden con la búsqueda.
+	 * @throws BibliotecaException si ocurre un error durante la consulta.
+	 */
 	public static List<Alumno> getAlumnos(String busqueda) throws BibliotecaException {
 		String like = "%" + busqueda + "%";
 		List<Alumno> alumnos = new LinkedList<>();
@@ -49,6 +69,12 @@ public class DAOAlumno {
 		return alumnos;
 	}
 	
+	/**
+	 * Añade un nuevo alumno a la base de datos.
+	 * @param alumno Alumno a añadir.
+	 * @throws BibliotecaException si ocurre un error durante la inserción.
+	 * @throws SQLException si ocurre un error durante la inserción.
+	 */
 	public static void anadirAlumno(Alumno alumno) throws BibliotecaException, SQLException {
 		if (alumno != null) {
 			
@@ -83,6 +109,12 @@ public class DAOAlumno {
 		}
 	}
 	
+	/**
+	 * Modifica un alumno existente en la base de datos.
+	 * @param alumno Alumno a modificar.
+	 * @throws BibliotecaException si ocurre un error durante la modificación.
+	 * @throws SQLException si ocurre un error durante la modificación.
+	 */
 	public static void modificarAlumno (Alumno alumno) throws BibliotecaException, SQLException {
 		if (alumno != null && !StringUtils.isBlank(alumno.getDni())) {
 			
@@ -120,6 +152,12 @@ public class DAOAlumno {
 		}
 	}
 	
+	/**
+	 * Comprueba si un alumno existe en la base de datos.
+	 * @param alumno Alumno a comprobar.
+	 * @return true si el alumno existe, false en caso contrario.
+	 * @throws BibliotecaException si ocurre un error durante la consulta.
+	 */
 	public static boolean existe(Alumno alumno) throws BibliotecaException {
 		if (alumno != null && alumno.getDni() != null) {
 			String sql = "SELECT * FROM Alumno WHERE dni = ?";
@@ -136,6 +174,12 @@ public class DAOAlumno {
 		return false;
 	}
 	
+	/**
+	 * Borra un alumno de la base de datos.
+	 * @param alumno Alumno a borrar.
+	 * @throws SQLException si ocurre un error durante la eliminación.
+	 * @throws BibliotecaException si ocurre un error durante la eliminación.
+	 */
 	public static void borrarAlumno(Alumno alumno) throws SQLException, BibliotecaException {
 		if (alumno != null && !StringUtils.isBlank(alumno.getDni())) {			
 			String sql = "DELETE FROM Alumno WHERE dni = ?";

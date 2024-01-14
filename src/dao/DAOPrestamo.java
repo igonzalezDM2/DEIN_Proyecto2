@@ -15,11 +15,28 @@ import model.Prestamo;
 import utils.StringUtils;
 import utils.Utilidades;
 
+/**
+ * Clase que representa el acceso a datos de los préstamos.
+ */
 public class DAOPrestamo {
 	
+	/**
+	 * Mapea un ResultSet a un objeto Prestamo.
+	 * @param rs ResultSet a mapear
+	 * @return Prestamo mapeado
+	 * @throws SQLException si ocurre un error al acceder a los datos del ResultSet
+	 */
 	public static Prestamo mapPrestamo(ResultSet rs) throws SQLException {
 		return mapPrestamo(rs, false);
 	}
+	
+	/**
+	 * Mapea un ResultSet a un objeto Prestamo.
+	 * @param rs ResultSet a mapear
+	 * @param historico Indica si el préstamo es histórico
+	 * @return Prestamo mapeado
+	 * @throws SQLException si ocurre un error al acceder a los datos del ResultSet
+	 */
 	public static Prestamo mapPrestamo(ResultSet rs, boolean historico) throws SQLException {
 		return new Prestamo()
 				.setId(rs.getInt("id_prestamo"))
@@ -42,9 +59,21 @@ public class DAOPrestamo {
 				;
 	}
 	
+	/**
+	 * Obtiene una lista de todos los préstamos.
+	 * @return Lista de préstamos
+	 * @throws BibliotecaException si ocurre un error al acceder a la base de datos
+	 */
 	public static List<Prestamo> getPrestamos() throws BibliotecaException {
 		return getPrestamos("");
 	}
+	
+	/**
+	 * Obtiene una lista de préstamos que coinciden con la búsqueda.
+	 * @param busqueda Texto a buscar
+	 * @return Lista de préstamos que coinciden con la búsqueda
+	 * @throws BibliotecaException si ocurre un error al acceder a la base de datos
+	 */
 	public static List<Prestamo> getPrestamos(String busqueda) throws BibliotecaException {
 		String like = "%" + busqueda + "%";
 		List<Prestamo> prestamos = new LinkedList<>();
@@ -93,6 +122,12 @@ public class DAOPrestamo {
 		return prestamos;
 	}
 	
+	/**
+	 * Añade un préstamo a la base de datos.
+	 * @param prestamo Préstamo a añadir
+	 * @throws BibliotecaException si ocurre un error al acceder a la base de datos
+	 * @throws SQLException si ocurre un error al ejecutar la consulta SQL
+	 */
 	public static void anadirPrestamo(Prestamo prestamo) throws BibliotecaException, SQLException {
 		if (prestamo != null) {
 			
@@ -130,6 +165,12 @@ public class DAOPrestamo {
 		}
 	}
 	
+	/**
+	 * Modifica un préstamo en la base de datos.
+	 * @param prestamo Préstamo a modificar
+	 * @throws BibliotecaException si ocurre un error al acceder a la base de datos
+	 * @throws SQLException si ocurre un error al ejecutar la consulta SQL
+	 */
 	public static void modificarPrestamo (Prestamo prestamo) throws BibliotecaException, SQLException {
 		if (prestamo != null && prestamo.getId() > 0) {
 			
@@ -165,6 +206,12 @@ public class DAOPrestamo {
 		}
 	}
 	
+	/**
+	 * Borra un préstamo de la base de datos.
+	 * @param prestamo Préstamo a borrar
+	 * @throws SQLException si ocurre un error al ejecutar la consulta SQL
+	 * @throws BibliotecaException si ocurre un error al acceder a la base de datos
+	 */
 	public static void borrarPrestamo (Prestamo prestamo) throws SQLException, BibliotecaException {
 		if (prestamo != null && prestamo.getId() > 0) {
 			String sql = "DELETE FROM Prestamo WHERE id_prestamo = ?";
@@ -186,6 +233,12 @@ public class DAOPrestamo {
 		
 	}
 	
+	/**
+	 * Borra todos los préstamos asociados a un libro de la base de datos.
+	 * @param libro Libro del cual borrar los préstamos
+	 * @throws SQLException si ocurre un error al ejecutar la consulta SQL
+	 * @throws BibliotecaException si ocurre un error al acceder a la base de datos
+	 */
 	public static void borrarPorLibro(Libro libro) throws SQLException, BibliotecaException {
 		if (libro != null && libro.getCodigo() > 0) {
 			String sql = "DELETE FROM Prestamo WHERE codigo_libro = ?";
@@ -207,6 +260,12 @@ public class DAOPrestamo {
 		
 	}
 	
+	/**
+	 * Borra todos los préstamos asociados a un alumno de la base de datos.
+	 * @param alumno Alumno del cual borrar los préstamos
+	 * @throws SQLException si ocurre un error al ejecutar la consulta SQL
+	 * @throws BibliotecaException si ocurre un error al acceder a la base de datos
+	 */
 	public static void borrarPorAlumno(Alumno alumno) throws SQLException, BibliotecaException {
 		if (alumno != null && !StringUtils.isBlank(alumno.getDni())) {
 			String sql = "DELETE FROM Prestamo WHERE dni_alumno = ?";

@@ -14,6 +14,11 @@ import net.sf.jasperreports.engine.util.JRLoader;
 import net.sf.jasperreports.view.JasperViewer;
 
 public class Creador {
+	/**
+     * Crea un informe a partir de un archivo Jasper y unos parámetros dados.
+     * @param ruta la ruta del archivo Jasper
+     * @param parameters los parámetros a utilizar en el informe
+     */
 	public static void crearInforme(String ruta, Map<String, Object> parameters) {
 	    try {
 	    	InputStream jasper = Creador.class

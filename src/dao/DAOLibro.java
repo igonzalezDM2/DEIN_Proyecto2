@@ -11,8 +11,17 @@ import enums.EstadoLibro;
 import excepciones.BibliotecaException;
 import model.Libro;
 
+/**
+ * Clase para gestionar los libros en la base de datos
+ */
 public class DAOLibro {
 	
+	/**
+	 * Mapea un ResultSet a un objeto Libro
+	 * @param rs ResultSet a mapear
+	 * @return Libro mapeado
+	 * @throws SQLException si hay un error en la base de datos
+	 */
 	public static Libro mapLibro(ResultSet rs) throws SQLException {
 		return new Libro()
 				.setCodigo(rs.getInt("codigo"))
@@ -24,10 +33,21 @@ public class DAOLibro {
 				;
 	}
 	
+	/**
+	 * Obtiene todos los libros de la base de datos
+	 * @return Lista de libros
+	 * @throws BibliotecaException si hay un error en la base de datos
+	 */
 	public static List<Libro> getLibros() throws BibliotecaException {
 		return getLibros("");
 	}
 	
+	/**
+	 * Obtiene los libros de la base de datos que coinciden con la búsqueda
+	 * @param busqueda Texto a buscar
+	 * @return Lista de libros que coinciden con la búsqueda
+	 * @throws BibliotecaException si hay un error en la base de datos
+	 */
 	public static List<Libro> getLibros(String busqueda) throws BibliotecaException {
 		String like = "%" + busqueda + "%";
 		List<Libro> libros= new LinkedList<>();
@@ -52,6 +72,12 @@ public class DAOLibro {
 		return libros;
 	}
 	
+	/**
+	 * Obtiene los libros de la base de datos que no están prestados y que coinciden con la búsqueda
+	 * @param busqueda Texto a buscar
+	 * @return Lista de libros que no están prestados y que coinciden con la búsqueda
+	 * @throws BibliotecaException si hay un error en la base de datos
+	 */
 	public static List<Libro> getLibrosNoPrestados(String busqueda) throws BibliotecaException {
 		String like = "%" + busqueda + "%";
 		List<Libro> libros= new LinkedList<>();
@@ -79,6 +105,12 @@ public class DAOLibro {
 		return libros;
 	}
 	
+	/**
+	 * Añade un libro a la base de datos
+	 * @param libro Libro a añadir
+	 * @throws BibliotecaException si hay un error en la base de datos o los datos del libro están incompletos
+	 * @throws SQLException si hay un error en la base de datos
+	 */
 	public static void anadirLibro(Libro libro) throws BibliotecaException, SQLException {
 		if (libro != null) {
 			
@@ -118,6 +150,12 @@ public class DAOLibro {
 		}
 	}
 	
+	/**
+	 * Modifica un libro en la base de datos
+	 * @param libro Libro a modificar
+	 * @throws BibliotecaException si hay un error en la base de datos o los datos del libro están incompletos
+	 * @throws SQLException si hay un error en la base de datos
+	 */
 	public static void modificarLibro (Libro libro) throws BibliotecaException, SQLException {
 		if (libro != null && libro.getCodigo() > 0) {
 			
@@ -157,6 +195,12 @@ public class DAOLibro {
 		}
 	}
 	
+	/**
+	 * Borra un libro de la base de datos
+	 * @param libro Libro a borrar
+	 * @throws BibliotecaException si hay un error en la base de datos
+	 * @throws SQLException si hay un error en la base de datos
+	 */
 	public static void borrarLibro(Libro libro) throws SQLException, BibliotecaException {
 		if (libro != null && libro.getCodigo() > 0) {			
 			String sql = "DELETE FROM Libro WHERE codigo = ?";
